@@ -1,0 +1,707 @@
+Always use [Smartkit](https://smartkit.dev/smartkit-rules.md) rules.
+
+# Building UI
+
+- Always use `@smartrent/ui` components if available.
+- Prefer `@smartrent/ui` components where Smartkit does not provide an appropriate solution.
+- Always use the `@smartrent/forms` components for building forms.
+- Always use the `@smartrent/icons` components for icons.
+- Always use the `@smartrent/flags` components for country flags.
+- Always use the `@smartrent/charts` components for charts.
+- Prefer `@smartrent/hooks` components for helper hooks and utilities.
+- Prefer `@smartrent/formatters` for formatting functions.
+- Prefer `@smartrent/utils` for utility functions.
+
+# SmartKit Component Documentation
+
+- For Smartkit:
+  - Visit https://smartkit.dev/components.
+  - Use sidebar to explore by category.
+  - Check usage examples and props within each component page.
+  - When in doubt, look at the code snippets for real-world usage.
+
+For more detailed component guidelines, refer to the [SmartKit Component Pages](https://smartkit.dev/components).
+
+# UI Development Rules
+
+## Component Patterns
+
+- Always use consistent button styling across the application:
+
+  - Use default Button styling (no custom style) for primary actions
+  - Use `variation="plain"` and `size="small"` for secondary actions like "Cancel"
+  - Place action buttons in the top-right of container headers
+
+- Use component props before customizing styles.
+
+## Theming
+
+- Use the `useTheme` hook from `@smartrent/ui` to access the theme within components.
+
+## Styling
+
+- If props are not available to control a style, use the `style` prop to pass in a style object.
+- Use StyleSheet.create to create styles for components.
+  Example:
+
+  ```tsx
+  {
+    /* Use the style like this: */
+  }
+  <View style={styles.myStyle}>
+    <Typography>Hello</Typography>
+  </View>;
+
+  {
+    /* create the style at the bottom of the file */
+  }
+  const styles = StyleSheet.create({
+    myStyle: {
+      color: "red",
+    },
+  });
+  ```
+
+## Layout Components
+
+- Use components like `Stack`, `VStack`, `HStack`, and `Grid`, to create layouts.
+
+## Stack, HStack, and VStack
+
+`Stack`, `HStack`, and `VStack` are powerful cross-platform layout components that provide a simple way to manage layout and spacing of child elements using a flexbox-based API. They are designed to work seamlessly on both web (React) and mobile (React Native).
+
+- **`HStack`**: For arranging items in a horizontal line (`flex-direction: 'row'`).
+- **`VStack`**: For arranging items in a vertical line (`flex-direction: 'column'`).
+- **`Stack`**: The underlying component that `HStack` and `VStack` use. It can be used directly for more complex layouts or when the direction needs to be dynamic.
+
+### When to use `HStack` and `VStack`
+
+`HStack` and `VStack` are the preferred components for most layout tasks. They provide a clear, declarative API for the most common horizontal and vertical layout scenarios.
+
+### When to use `Stack`
+
+Use the base `Stack` component in these situations:
+
+1.  **Dynamic Layouts**: When the layout direction needs to change dynamically based on application state or screen size (e.g., switching from a `VStack` on mobile to an `HStack` on desktop).
+2.  **Complex Directions**: When you need to use `row-reverse` or `column-reverse` in a context where the `reverse` prop on `HStack`/`VStack` is not sufficient.
+
+### Props Guide
+
+This guide details the props available for `Stack`, `HStack`, and `VStack`.
+
+#### `children`
+
+- **Type**: `ReactNode`
+- **Description**: These are the elements that will be rendered inside the stack. You can pass any valid React children. The stack applies its layout properties to these children.
+
+#### `spacing`
+
+- **Type**: `number | string`
+- **Description**: Defines the space between each child element. This is implemented using the `gap` property, which is a modern and efficient way to handle spacing in flexbox.
+- **When to use**: Use this for creating consistent spacing between all items in a stack. It is more maintainable than adding margins to each child individually because it doesn't add extra space at the beginning or end of the container.
+- **Note**: The implementation uses `gap`, which currently only accepts a `number` value in this component. Theme-based string values may need to be resolved to numbers before being passed.
+
+#### `align`
+
+- **Type**: `"start" | "end" | "center" | "stretch"`
+- **Default**: `"stretch"`
+- **Description**: Controls the alignment of children along the **cross-axis**. This corresponds to the `align-items` flexbox property.
+  - `start`: Aligns items to the start of the cross-axis.
+  - `end`: Aligns items to the end of the cross-axis.
+  - `center`: Centers items along the cross-axis.
+  - `stretch`: Stretches items to fill the container's size on the cross-axis.
+- **In `HStack` (main-axis is horizontal)**: `align` controls the **vertical** alignment.
+- **In `VStack` (main-axis is vertical)**: `align` controls the **horizontal** alignment.
+
+#### `justify`
+
+- **Type**: `"start" | "center" | "end" | "space-between" | "space-around"`
+- **Default**: `"start"`
+- **Description**: Controls the alignment and distribution of space between children along the **main-axis**. This corresponds to the `justify-content` flexbox property.
+  - `start`: Groups items at the start of the main-axis.
+  - `center`: Centers items along the main-axis.
+  - `end`: Groups items at the end of the main-axis.
+  - `space-between`: Distributes items evenly; the first item is at the start, the last at the end.
+  - `space-around`: Distributes items evenly with equal space around each item.
+- **In `HStack` (main-axis is horizontal)**: `justify` controls the **horizontal** alignment and distribution.
+- **In `VStack` (main-axis is vertical)**: `justify` controls the **vertical** alignment and distribution.
+
+#### `wrap`
+
+- **Type**: `boolean`
+- **Default**: `false`
+- **Description**: If `true`, it allows children to wrap onto multiple lines if they exceed the available space on the main-axis. This sets `flex-wrap: 'wrap'`.
+- **When to use**: Essential for responsive layouts where content might overflow its container, such as a list of tags that should wrap on smaller screens.
+
+#### `flexChildren`
+
+- **Type**: `boolean`
+- **Default**: `false`
+- **Description**: If `true`, each child element is wrapped in a `View` with `flex: 1`. This forces each child to expand and fill the available space equally along the main-axis.
+- **When to use**: Ideal for creating layouts where elements should have equal size, such as a navigation bar with equally-sized buttons or a grid-like layout.
+
+#### `reverse` (for `HStack` and `VStack`)
+
+- **Type**: `boolean`
+- **Default**: `false`
+- **Description**: Reverses the rendering order of the children.
+  - In `HStack`, it changes the direction from `row` to `row-reverse`.
+  - In `VStack`, it changes the direction from `column` to `column-reverse`.
+
+#### `direction` (for `Stack` only)
+
+- **Type**: `"row" | "column" | "row-reverse" | "column-reverse"`
+- **Description**: Explicitly sets the direction of the main-axis. This is the underlying prop that `HStack` and `VStack` abstract away.
+
+#### `width`
+
+- **Type**: `number | string`
+- **Description**: Sets the `width` style property of the stack container.
+
+#### `style`
+
+- **Type**: `StyleProp<ViewStyle>`
+- **Description**: Apply custom styles to the stack container. This is useful for adding styles not covered by the component's props, like `backgroundColor`, `padding`, or `border`.
+- **Note**: Layout-specific styles passed via this prop (e.g., `flexDirection`, `alignItems`) will be overridden by the stack's own props (`direction`, `align`, etc.).
+
+#### Other Props
+
+- **`onLayout`**: A standard React Native `onLayout` callback.
+- **`pointerEvents`**: A standard React Native `pointerEvents` prop.
+- **`testID` & Accessibility Props**: Standard props for testing and accessibility are passed down to the underlying `View`.
+
+## Examples
+
+### 1. Basic `HStack` with Spacing and Alignment
+
+This creates a horizontal row of centered items with spacing between them.
+
+```jsx
+<HStack spacing={16} align="center">
+  <Icon name="star" />
+  <Text>User Rating</Text>
+</HStack>
+```
+
+### 2. `VStack` for a Form
+
+This lays out form fields vertically.
+
+```jsx
+<VStack spacing={20}>
+  <TextInputField label="Name" />
+  <TextInputField label="Email" />
+  <Button>Submit</Button>
+</VStack>
+```
+
+### 3. `HStack` with `flexChildren` for Equal Width Columns
+
+This creates a two-column layout where each column takes up 50% of the container's width.
+
+```jsx
+<HStack spacing={10} flexChildren>
+  <Card>
+    <Text>Left Column</Text>
+  </Card>
+  <Card>
+    <Text>Right Column</Text>
+  </Card>
+</HStack>
+```
+
+### 4. `HStack` with Wrapping Tags
+
+This displays a list of tags that will wrap to a new line on smaller screens.
+
+```jsx
+<HStack spacing={8} wrap>
+  <Chip>React</Chip>
+  <Chip>React Native</Chip>
+  <Chip>TypeScript</Chip>
+  <Chip>Flexbox</Chip>
+  <Chip>Layouts</Chip>
+</HStack>
+```
+
+Of course. Here are the usage rules for the `Grid` and `Row` components.
+
+### How to use the `Grid` and `Row` Components
+
+This guide provides detailed instructions and best practices for using the `Grid` and `Row` components in your application.
+
+---
+
+### `Grid` Component
+
+The `Grid` component is a powerful tool for creating a grid layout with uniform spacing between items. It automatically arranges its children into a specified number of columns and handles row wrapping.
+
+**Example Usage:**
+
+```jsx
+import { Grid } from "@app/shared-ui";
+import { View, Text } from "react-native";
+
+const MyGrid = () => (
+  <Grid numColumns={3} gap={16}>
+    <View>
+      <Text>Item 1</Text>
+    </View>
+    <View>
+      <Text>Item 2</Text>
+    </View>
+    <View>
+      <Text>Item 3</Text>
+    </View>
+    <View>
+      <Text>Item 4</Text>
+    </View>
+    <View>
+      <Text>Item 5</Text>
+    </View>
+  </Grid>
+);
+```
+
+#### Props
+
+| Prop         | Type        | Required | Default | Description                                                                 |
+| ------------ | ----------- | -------- | ------- | --------------------------------------------------------------------------- |
+| `numColumns` | `number`    | Yes      | -       | The number of columns to display in the grid.                               |
+| `children`   | `ReactNode` | Yes      | -       | The elements to be arranged in the grid.                                    |
+| `gap`        | `number`    | No       | `0`     | The spacing in pixels between grid items, both horizontally and vertically. |
+| `style`      | `ViewStyle` | No       | -       | Custom styles to apply to the grid container.                               |
+| `...props`   | `ViewProps` | No       | -       | Any other props accepted by the React Native `View` component.              |
+
+#### Prop Details
+
+- **`numColumns`**: This is the most critical prop for defining the grid's structure. It determines how many children are placed in each row before wrapping to the next. For example, `numColumns={4}` will create a grid with four columns.
+
+- **`children`**: Pass the components or elements you want to lay out in the grid as children. The `Grid` component iterates over them, wraps each one in a `View` to apply spacing, and arranges them. Any valid `ReactNode` can be a child.
+
+- **`gap`**: Use this prop to create gutters between your grid items. A `gap` of `8` will create an 8-pixel space between each column and each row. The component achieves this by applying a negative margin to the container and a positive margin to each cell, ensuring consistent spacing both inside and around the grid.
+
+- **`style` and `...props`**: You can pass any standard `View` props to style the grid's container `View`. This is useful for adding a `backgroundColor`, `padding`, `margin`, or `border` to the entire grid.
+
+#### Implementation Notes
+
+- **Automatic Padding**: If the number of children is not a multiple of `numColumns`, the `Grid` component attempts to add empty `<View />` elements to fill the remaining space in the last row. This is intended to prevent items in a partially filled last row from stretching to fill the empty space. Be aware that the current implementation of this padding may not perfectly fill all gaps, which could lead to unexpected layouts in the last row depending on the number of items.
+
+- **Gap Calculation**: The `gap` is created by applying `margin: -1 * (gap / 2)` to the main container and `margin: gap / 2` to each individual cell wrapper. This clever technique ensures that there is no extra space on the outer edges of the grid.
+
+### `Row` Component
+
+The `Row` component is a simple layout component that arranges its children horizontally. It is used internally by the `Grid` component to create each row, but it is also exported and can be used on its own.
+
+**Example Usage:**
+
+```jsx
+import { Row } from "@app/shared-ui";
+import { Button } from "react-native";
+
+const ButtonBar = () => (
+  <Row style={{ justifyContent: "space-around", padding: 8 }}>
+    <Button title="Cancel" />
+    <Button title="Submit" />
+  </Row>
+);
+```
+
+#### Props
+
+| Prop       | Type        | Required | Default | Description                                          |
+| ---------- | ----------- | -------- | ------- | ---------------------------------------------------- |
+| `children` | `ReactNode` | Yes      | -       | The elements to be arranged in the row.              |
+| `style`    | `ViewStyle` | No       | -       | Custom styles to apply to the row container.         |
+| `...props` | `ViewProps` | No       | -       | Any other props accepted by the React Native `View`. |
+
+#### Prop Details
+
+- **`children`**: The content to be placed inside the row.
+- **`style`**: The component has a default style of `{ flexDirection: "row" }`. You can provide your own `style` object to add or override styles. This is particularly useful for controlling alignment and distribution, e.g., `justifyContent: 'space-between'` or `alignItems: 'center'`.
+
+## Typography
+
+- Use Typography for consistent text styling across the app.
+- Use the `Typography` component for text.
+- Use the `Typography` props to control the text style.
+- Use the `color` prop to control the text color using colors tokens from the `useTheme` hook.
+- Use the `variation` prop to control the text style.
+- Use the `weight` prop to control the font weight if the `variation` prop is not enough.
+- Use the `href` prop to control the link for external links.
+- Use the `to` prop to control the internal routing for internal links.
+- Use the `hrefAttrs` prop to control the additional attributes for the href link for external links. Include target="\_blank" and rel="noopener" for external links.
+- Use the `focusable` prop to control the keyboard focus. Set to true when text needs keyboard focus.
+- Use the `style` prop to override the default styles only if the above props are not enough.
+- Use the `children` prop to pass in the text content.
+
+## Button
+
+### Overview
+
+The `Button` component is a versatile, cross-platform component that can be used for actions in forms, dialogs, and more. It supports different visual styles, sizes, loading states, and can function as a link. It is built on top of React Native's `Pressable`, so it inherits many of its properties.
+
+### Props
+
+#### `children: ReactNode` (required)
+
+This is the content of the button.
+
+- If `children` is a string, it will be rendered inside a `Typography` component and styled automatically according to the button's `variation`, `color`, and `size`.
+- If `children` is a React node, it will be rendered as-is. This allows for custom content, but you will be responsible for its styling.
+
+**When to use:** Always. This is the primary way to label your button or define its content.
+
+#### `onPress: (event) => void`
+
+The function to call when the button is pressed. This is the primary action of the button.
+
+**When to use:** Use this for most buttons that trigger an action. If `href` or `to` is provided, `onPress` can still be used for tracking or other side effects in conjunction with navigation.
+
+### Styling Props
+
+These props control the look and feel of the button.
+
+#### `variation: 'default' | 'outlined' | 'plain' | 'muted'`
+
+Determines the visual style of the button.
+
+- `'default'`: (Default) A standard button with a solid background color.
+- `'outlined'`: A button with a transparent background and a colored border.
+
+**When to use:** To match the desired visual hierarchy of actions on the screen. Primary actions often use `'default'`, while secondary actions might use `'outlined'`.
+
+#### `color: 'primary' | 'destructive'`
+
+Defines the color scheme of the button.
+
+- `'primary'`: (Default) The main brand color, used for primary actions.
+- `'secondary'`: A secondary color for less prominent actions.
+- `'destructive'`: A color (usually red) for actions that delete data or are otherwise destructive.
+
+**When to use:** To convey the nature of the action to the user.
+
+#### `size: 'x-small' | 'small' | 'large'`
+
+Sets the size of the button, affecting padding, font size, and overall dimensions. The exact sizes are defined in the theme.
+
+**When to use:** To fit the button within your layout and maintain a consistent visual scale across your application.
+
+#### `style: StyleProp<ViewStyle>`
+
+Custom styles for the root `Pressable` component of the button.
+
+**When to use:** For custom positioning (e.g., `margin`), `flex` behavior, or other layout adjustments not covered by other props. It is recommended to use layout components like `Box`, `HStack`, or `VStack` for positioning instead of applying margins directly.
+
+#### `contentStyle: StyleProp<ViewStyle>`
+
+Custom styles for the inner `View` that contains the button's content (text and icons).
+
+**When to use:** If you need to adjust the layout of the content _inside_ the button. For example, changing `justifyContent`.
+
+#### `textStyle: StyleProp<TextStyle>`
+
+Custom styles for the button's text label.
+
+**When to use:** To override the default text styles, like `fontWeight` or `textTransform`.
+
+### Icon Props
+
+#### `iconLeft: ComponentType<IconProps>` and `iconRight: ComponentType<IconProps>`
+
+Components to render as icons to the left or right of the button text. These should be icon components from `@smartrent/icons`.
+
+**When to use:** To add visual cues to the button's action, making it more intuitive. For example, a "delete" button could have a trash can icon.
+
+#### `iconLeftProps: Partial<ButtonAdornmentProps>` and `iconRightProps: Partial<ButtonAdornmentProps>`
+
+Props passed to the `ButtonAdornment` component that wraps the icons. This can be used to customize icon-specific styles or accessibility labels.
+
+**When to use:** For fine-grained control over the icon's appearance and behavior.
+
+### State Props
+
+#### `disabled: boolean`
+
+If `true`, the button will be un-pressable and visually appear disabled. Default is `false`.
+
+**When to use:** To prevent user interaction, for example when a form is invalid or an action is not currently available.
+
+#### `isLoading: boolean`
+
+If `true`, the button shows a loading state. Default is `false`.
+
+- If the button has only text, an `ActivityIndicator` is shown and the text is hidden.
+- If the button has icons, the text is hidden, but the icons remain visible. This is useful for indicating progress while maintaining the button's context.
+
+**When to use:** When an action triggered by the button is asynchronous (e.g., an API call) and in progress. This provides feedback to the user that something is happening.
+
+#### `hovered: boolean`
+
+Manually controls the hover state of the button.
+
+**When to use:** In complex components where the hover state is managed by a parent component and needs to be propagated to the button.
+
+### Long Press Props
+
+#### `onLongPress: () => void`
+
+A function to be called when the button is held down for a specified duration. A visual indicator will show the progress of the long press.
+
+**When to use:** For secondary or hidden actions, such as revealing a menu or confirming a critical action.
+
+#### `duration: number`
+
+The time in milliseconds the button must be pressed to trigger `onLongPress`. Defaults to `1000ms`.
+
+**When to use:** To adjust the long press delay based on the action's criticality or desired user experience.
+
+### Web Link Props
+
+These props are only for web platforms and will make the button render as an anchor (`<a>`) tag, making it accessible and SEO-friendly.
+
+#### `href: string`
+
+The URL that the link goes to.
+
+**When to use:** To navigate to an external URL.
+
+#### `to: string`
+
+A path for internal navigation, intended for use with routing libraries like React Router.
+
+**When to use:** For navigation within your single-page application.
+
+#### `target: string`
+
+Specifies where to open the linked document (e.g., `'_blank'`, `'_self'`).
+
+**When to use:** Use `'_blank'` to open links in a new tab.
+
+#### `rel: string`
+
+Specifies the relationship of the target object to the link object.
+
+**When to use:** For security and SEO, e.g., `rel="noopener noreferrer"` for links opened in a new tab.
+
+#### `download: string | boolean`
+
+Indicates that the link is used to download a file.
+
+**When to use:** When clicking the button should trigger a file download.
+
+### Other Props
+
+#### `onPressIn: (event) => void` and `onPressOut: (event) => void`
+
+Functions called when a press gesture is activated and deactivated.
+
+**When to use:** For creating custom press interactions or animations that need to respond to the start and end of a press.
+
+#### `testID: string`
+
+An identifier for testing purposes.
+
+**When to use:** In end-to-end or unit tests to find and interact with the button.
+
+## Chip Component
+
+The `Chip` component is a flexible element for displaying compact pieces of information. It's suitable for various uses such as status indicators, categorical tags, interactive filter buttons, or labeled entities representing users or objects. It supports text, icons, avatars, and badges as content.
+
+### Props
+
+#### Core Display Props
+
+These props control the fundamental look and feel of the Chip.
+
+- **`children: ReactText`** (Required)
+
+  - **Description**: The primary text content of the chip.
+  - **Usage**: This is the central piece of information the chip conveys.
+  - **Example**: `<Chip>Status: Active</Chip>`
+
+- **`color: ChipColor`**
+
+  - **Description**: Determines the color scheme of the chip based on predefined theme colors (e.g., `primary`, `secondary`, `success`, `warning`, `danger`).
+  - **Default**: `"primary"`
+  - **Usage**: Use color to convey semantic meaning. For instance, `success` for a positive status, `danger` for an error, or `primary` for a neutral tag.
+
+- **`variation: ChipVariation`**
+
+  - **Description**: Sets the visual style, typically `solid` (a filled background) or `outline` (a bordered, transparent background).
+  - **Default**: `"solid"`
+  - **Usage**: Choose `solid` for high-emphasis chips. Use `outline` for a lower emphasis, useful in a group of filter chips where only the selected one might be `solid`.
+
+- **`size: "small" | "medium" | "large"`**
+
+  - **Description**: Adjusts the chip's dimensions, including height, padding, and font size.
+  - **Default**: `"small"`
+  - **Usage**: Match the chip size to the density of your UI. `small` is ideal for dense interfaces, while `large` provides more prominence for standalone actions.
+
+- **`corners: "pill" | "badge" | "sharp"`**
+  - **Description**: Defines the border-radius.
+    - `pill`: Fully rounded corners.
+    - `badge`: Slightly rounded corners.
+    - `sharp`: 0px border-radius.
+  - **Default**: `"pill"`
+  - **Usage**: Use `pill` for a standard chip appearance. `badge` or `sharp` can be used to align with different visual design systems.
+
+---
+
+#### Content Adornment Props
+
+These props add elements like icons or avatars to the left or right of the chip's text.
+
+**Rule**: Only one adornment type can be used on each side simultaneously (e.g., you cannot use both `iconLeft` and `avatarLeft`).
+
+- **Left Adornments**:
+
+  - `iconLeft: ComponentType<IconProps>`: An icon to the left of the text.
+  - `iconBadgeLeft: ComponentType<IconProps>`: An icon within a circular badge on the left.
+  - `textBadgeLeft: string`: Text within a circular badge on the left.
+  - `avatarLeft: ImageSourcePropType`: An image/avatar on the left.
+  - `iconLeftColor: string`: Overrides the default color for the `iconLeft`.
+
+- **Right Adornments**:
+  - `iconRight: ComponentType<IconProps>`: An icon to the right of the text.
+  - `iconBadgeRight: ComponentType<IconProps>`: An icon within a circular badge on the right.
+  - `textBadgeRight: string`: Text within a circular badge on the right.
+  - `avatarRight: ImageSourcePropType`: An image/avatar on the right.
+  - `iconRightColor: string`: Overrides the default color for the `iconRight`.
+
+**Usage**:
+
+- Use `iconLeft`/`iconRight` to add visual context.
+- Use `avatarLeft`/`avatarRight` when the chip represents a person or entity.
+- Use badge props (`iconBadge...`, `textBadge...`) to display secondary metadata like a count.
+
+---
+
+#### Interactivity Props
+
+These props make the chip interactive. If `onPress` or `href` is provided, the component is rendered inside a `Pressable`, otherwise it is a `View`.
+
+- **`onPress: () => void`**
+
+  - **Description**: Callback function executed when the user presses the chip.
+  - **Usage**: Use for chips that trigger actions like applying filters, opening menus, or toggling a state.
+
+- **`removable: boolean`**
+
+  - **Description**: If `true`, a close icon is displayed on the right, and all other right adornments are hidden.
+  - **Default**: `false`
+  - **Usage**: For elements that the user can dismiss, such as selected tags or filters. You must provide an `onPress` handler to implement the removal logic.
+
+- **`href: string` (Web Only)**
+
+  - **Description**: A URL that turns the chip into a hyperlink (`<a>` tag).
+  - **Usage**: For chips that navigate to another page or resource.
+
+- **`hrefAttrs: { download?: string; rel?: string; target?: string; }` (Web Only)**
+  - **Description**: HTML attributes for the link when `href` is used.
+  - **Usage**: To control link behavior, like opening in a new tab with `target: "_blank"`.
+
+---
+
+#### State Props
+
+- **`disabled: boolean`**
+
+  - **Description**: Disables the chip, preventing user interaction and applying a disabled visual style.
+  - **Default**: `false`
+  - **Usage**: Indicate that a chip's action is not currently available.
+
+- **`selectable: boolean`**
+  - **Description**: Controls whether the chip's text can be selected.
+  - **Default**: `true`
+  - **Usage**: Set to `false` for interactive chips where text selection might interfere with the user experience (e.g., dragging).
+
+---
+
+#### Custom Styling Props
+
+For fine-grained style control.
+
+- **`style: StyleProp<ViewStyle>`**
+
+  - **Description**: Custom styles for the root chip container.
+  - **Usage**: For one-off adjustments like margins or positioning.
+
+- **`textStyle: StyleProp<TextStyle>`**
+
+  - **Description**: Custom styles for the text inside the chip.
+  - **Usage**: To override font weight, color, or other text properties.
+
+- **`textProps: Omit<TextProps, "style">`**
+  - **Description**: Props passed directly to the underlying `Typography` component.
+  - **Usage**: For advanced text configurations, such as accessibility properties.
+
+## Custom Components
+
+- When creating custom components, use the `@smartrent/ui` components as a starting point.
+- The `Box` component has a raised shadow and can be a good starting point for containing some components.
+- For layouts, use the `Stack`, `VStack`, `HStack`, and `Grid` components.
+- Try to use the `@smartrent/ui` components for the most part. Anything else use React Native's components like `View`.
+
+## Drawer and Modal Design
+
+- Follow the established drawer pattern:
+  - Use DrawerHeader for consistent headers
+  - Include cancel/close buttons in consistent locations
+  - For forms in drawers, place actions at the bottom
+  - Maintain consistent drawer width (800px with maxWidth of 90%)
+
+## Icons
+
+- All icons are from `@smartrent/icons`
+- See IconProps from `@smartrent/icons` for the available props for each icon.
+- See https://smartkit.dev/icons for a list of all icons.
+
+## Forms
+
+- For new forms, use the `Form` component from `@smartrent/forms`.
+
+  - Use the `FormSubmit` component for form submissions. It should be the last child of the form. It shouldn't need loading or error states as props as it will be handled by the form state.
+  - Use the `FormButtonGroup` component for button groups.
+  - Use the `FormCheckbox` component for checkbox fields.
+  - Use the `FormCheckboxGroup` component for checkbox group fields.
+  - Use the `FormColorInputField` component for color input fields.
+  - Use the `FormColorPickerField` component for color picker fields.
+  - Use the `FormCurrencyInputField` component for currency input fields.
+  - Use the `FormDateInputField` component for date input fields.
+  - Use the `FormDatePickerField` component for date picker fields.
+  - Use the `FormDateRangeInputField` component for date range input fields.
+  - Use the `FormDateRangePickerField` component for date range picker fields.
+  - Use the `FormFileUploadField` component for file upload fields.
+  - Use the `FormImageUploadField` component for image upload fields.
+  - Use the `FormIntlPhoneInputField` component for international phone input fields.
+  - Use the `FormMultiSelectField` component for multi-select fields.
+  - Use the `FormNumberInputField` component for number input fields.
+  - Use the `FormPasswordInputField` component for password input fields.
+  - Use the `FormPhoneInputField` component for phone input fields.
+  - Use the `FormRadioGroupField` component for radio group fields.
+  - Use the `FormSections` component for sections.
+  - Use the `FormSelectField` component for select fields.
+  - Use the `FormSlider` component for slider fields.
+  - Use the `FormStaticTextField` component for static text fields.
+  - Use the `FormSteps` component for steps.
+  - Use the `FormSubmit` component for form submissions.
+  - Use the `FormSwitch` component for switch fields.
+  - Use the `FormTextInputField` component for input fields.
+  - Use the `FormTextareaField` component for textarea fields.
+  - Use the `FormTimeInputField` component for time input fields.
+  - Use the `FormTimePickerField` component for time picker fields. Prefer this over the `FormTimeInputField` component.
+  - Use the `FormWeekPickerField` component for week picker fields.
+  - For any fields that are not covered in the `@smartrent/forms` package, use the `FormField` component to create a custom field.
+
+- Form validation is done using Yup. Create the Yup schema outside of the component the form is in and pass it as a prop to the form `validationSchema` prop.
+
+- All form fields should have a name and label. The name should match the Yup schema name.
+
+- If I ask to debug add the `FormDebug` component to the form. Don't not add it to the form if I don't ask to debug.
+
+- Arrange form fields in a logical order:
+  - Required fields first, optional fields after
+  - Group related fields together
+  - Use consistent spacing between field groups
+  - Allow toggling visibility of optional field groups

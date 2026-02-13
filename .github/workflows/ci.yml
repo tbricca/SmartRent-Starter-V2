@@ -1,0 +1,46 @@
+name: CI
+
+on: [push]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Format/Lint/Build/Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.12.0"
+          registry-url: "https://registry.npmjs.org"
+      - name: Cache
+        uses: actions/cache@v4
+        id: yarn-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install packages
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        run: yarn install
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.YARN_NPM_AUTH_TOKEN }}
+      - name: Format Check
+        run: yarn format-check
+      - name: Lint
+        run: yarn lint
+      - name: Build
+        run: yarn build
+        # env:
+        #   REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
+        #   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        #   SENTRY_LOG_LEVEL: ${{ secrets.SENTRY_LOG_LEVEL }}
+        #   SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        #   SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
