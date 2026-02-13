@@ -2,7 +2,7 @@
   "name": "smartrent-starter-v2",
   "version": "1.0.0",
   "main": "src/index.tsx",
-  "repository": "git@github.com:smartrent/smartrent-starter-v2.git",
+  "repository": "https://github.com/tbricca/SmartRent-Starter-V2.git",
   "license": "UNLICENSED",
   "private": true,
   "scripts": {

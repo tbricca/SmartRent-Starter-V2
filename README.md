@@ -22,4 +22,4 @@ This is a starter template to get you up and running with a React web app using 
 
 If you find anything that needs to be updated in this starter please open an issue:
 
-[https://github.com/smartrent/smartrent-starter-v2/issues/new](https://github.com/smartrent/smartrent-starter-v2/issues/new)
+[https://github.com/tbricca/SmartRent-Starter-V2/issues/new](https://github.com/tbricca/SmartRent-Starter-V2/issues/new)
